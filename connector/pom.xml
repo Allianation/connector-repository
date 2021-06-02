@@ -5,10 +5,7 @@
   <version>0.0.1-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>connector</name>
-  <description>MULTI MODULES PROJECT FOR DATABASE CONNECTIONS
-MULTI MODULES PROJECT FOR DATA BASED CONNECTIONS
-MULTI MODULES PROJECT FOR DATA BASED CONNECTIONS
-MULTI MODULES PROJECT FOR DATA BASED CONNECTIONS</description>
+  <description>MULTI MODULES PROJECT FOR DATABASE CONNECTIONS</description>
   <modules>
   	<module>connector-application</module>
   </modules>
