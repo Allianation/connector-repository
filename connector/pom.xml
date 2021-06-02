@@ -9,4 +9,7 @@
 MULTI MODULES PROJECT FOR DATA BASED CONNECTIONS
 MULTI MODULES PROJECT FOR DATA BASED CONNECTIONS
 MULTI MODULES PROJECT FOR DATA BASED CONNECTIONS</description>
+  <modules>
+  	<module>connector-application</module>
+  </modules>
 </project>
