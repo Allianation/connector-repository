@@ -68,8 +68,24 @@ public class ConnectorController {
 			}
 
 		} else if (request.getDataSource().equals("secondDataSource")) {
+			
+			for (QueryDetails qd : connector.getConnectorDetails().get(1).getQueryDetails()) {
 
-		}
+				if (qd.getName().equals(request.getQueryName())) {
+					
+					var sql = qd.getQuery();
+					
+					try (var con = secondDataSource.getConnection(); PreparedStatement ps = con.prepareStatement(sql); ResultSet rs = ps.executeQuery();) {
+
+						return ResponseEntity.status(HttpStatus.OK).body(getJSON(rs));
+
+					} catch (SQLException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+
+		} 
 
 		return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Connection not found!!!");
 
@@ -127,7 +143,7 @@ public class ConnectorController {
     	
     	sb.append("]");
     	
-    	log.info("Cantidad de Filas: " + rowIndex + "%n");
+    	log.info("Cantidad de Filas: " + rowIndex);
     	log.info(sb.toString());
     	
     	return sb.toString();

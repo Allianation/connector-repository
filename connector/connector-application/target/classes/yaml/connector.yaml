@@ -1,13 +1,13 @@
 connectorDetails:
   - type: "firstDataSource" 
     queryDetails: 
-      - name: "USER"
+      - name: "USERS"
         query: "SELECT * FROM USERS"
       - name: "CLIENT_BANKS"
         query: "SELECT * FROM CLIENT_BANKS"
   - type: "secondDataSource" 
     queryDetails: 
-      - name: "USER"
+      - name: "USERS"
         query: "SELECT * FROM USERS"
       
       
