@@ -12,18 +12,18 @@ import com.zaxxer.hikari.HikariDataSource;
 
 @Component
 public class HikariLoader implements ApplicationRunner {
-	
-  @Autowired
-  @Qualifier("firstDataSource")
-  HikariDataSource firstDataSource;
-  
-  @Autowired
-  @Qualifier("secondDataSource")
-  HikariDataSource secondDataSource;
-  
-  @Autowired
-  public void run(ApplicationArguments args) throws SQLException {
-	 firstDataSource.getConnection();
-	 secondDataSource.getConnection();
-  }
+
+	@Autowired
+	@Qualifier("oracleDataSource")
+	HikariDataSource oracleDataSource;
+
+	@Autowired
+	@Qualifier("sqlserverDataSource")
+	HikariDataSource sqlserverDataSource;
+
+	@Autowired
+	public void run(ApplicationArguments args) throws SQLException {
+		oracleDataSource.getConnection();
+		sqlserverDataSource.getConnection();
+	}
 }

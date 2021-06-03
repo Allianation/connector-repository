@@ -18,29 +18,29 @@ import com.zaxxer.hikari.HikariDataSource;
 @PropertySource({ "classpath:application.properties" })
 @Primary
 public class DatabaseConfiguration {
-	@Bean(name = "firstDataSource")
-    @ConfigurationProperties("first.datasource")
+	@Bean(name = "oracleDataSource")
+    @ConfigurationProperties("oracle.datasource")
     @Primary
     public HikariDataSource firstDataSource() {
         return (HikariDataSource) DataSourceBuilder.create().build();
     }
 
-    @Bean(name = "secondDataSource")
-    @ConfigurationProperties("second.datasource")
+    @Bean(name = "sqlserverDataSource")
+    @ConfigurationProperties("sqlserver.datasource")
     public HikariDataSource secondDataSource() {
         return DataSourceBuilder.create().type(HikariDataSource.class).build();
     }
 
-    @Bean(name="firstTransactionManager")
+    @Bean(name="oracleTransactionManager")
     @Autowired
     @Primary
-    DataSourceTransactionManager firstTransactionManager(@Qualifier ("firstDataSource") DataSource datasource1) {
+    DataSourceTransactionManager firstTransactionManager(@Qualifier ("oracleDataSource") DataSource datasource1) {
         return new DataSourceTransactionManager(datasource1);
     }
 
-    @Bean(name="secondTransactionManager")
+    @Bean(name="sqlserverTransactionManager")
     @Autowired
-    DataSourceTransactionManager secondTransactionManager(@Qualifier("secondDataSource") DataSource datasource2) {
+    DataSourceTransactionManager secondTransactionManager(@Qualifier("sqlserverDataSource") DataSource datasource2) {
     	return new DataSourceTransactionManager(datasource2);
     }
 }
