@@ -15,7 +15,7 @@ import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import com.zaxxer.hikari.HikariDataSource;
 
 @Configuration
-@PropertySource({ "classpath:application.properties"})
+@PropertySource({ "classpath:application.properties" })
 @Primary
 public class DatabaseConfiguration {
 	@Bean(name = "firstDataSource")
@@ -28,21 +28,19 @@ public class DatabaseConfiguration {
     @Bean(name = "secondDataSource")
     @ConfigurationProperties("second.datasource")
     public HikariDataSource secondDataSource() {
-        return (HikariDataSource) DataSourceBuilder.create().build();
+        return (HikariDataSource) DataSourceBuilder.create().driverClassName("com.microsoft.sqlserver.jdbc.SQLServerDriver").build();
     }
 
     @Bean(name="firstTransactionManager")
     @Autowired
     @Primary
-    DataSourceTransactionManager firstTransactionManager(@Qualifier ("firstDataSource") DataSource datasource) {
-        DataSourceTransactionManager txm  = new DataSourceTransactionManager(datasource);
-        return txm;
+    DataSourceTransactionManager firstTransactionManager(@Qualifier ("firstDataSource") DataSource datasource1) {
+        return new DataSourceTransactionManager(datasource1);
     }
 
     @Bean(name="secondTransactionManager")
     @Autowired
-    DataSourceTransactionManager secondTransactionManager(@Qualifier("secondDataSource") DataSource datasource) {
-        DataSourceTransactionManager txm  = new DataSourceTransactionManager(datasource);
-        return txm;
+    DataSourceTransactionManager secondTransactionManager(@Qualifier("secondDataSource") DataSource datasource2) {
+    	return new DataSourceTransactionManager(datasource2);
     }
 }
