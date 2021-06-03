@@ -109,8 +109,8 @@ public class ConnectorController {
 			        	
 			        	sb.append("]");
 			        	
-			        	System.out.printf("Cantidad de Filas: " + rowIndex + "%n");
-			        	System.out.printf(sb.toString());
+			        	log.info("Cantidad de Filas: " + rowIndex + "%n");
+			        	log.info(sb.toString());
 
 						return ResponseEntity.status(HttpStatus.OK).body(sb.toString());
 
