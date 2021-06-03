@@ -59,60 +59,7 @@ public class ConnectorController {
 					
 					try (var con = firstDataSource.getConnection(); PreparedStatement ps = con.prepareStatement(sql); ResultSet rs = ps.executeQuery();) {
 
-						// Collect column names
-			        	List<String> columnNames = new ArrayList<>();
-			        	ResultSetMetaData rsmd = rs.getMetaData();
-			        	for (int i = 1; i <= rsmd.getColumnCount(); i++) {
-			        	    columnNames.add(rsmd.getColumnLabel(i));
-			        	}
-			        	
-			        	StringBuilder sb = new StringBuilder("[");
-			        	int rowIndex = 0;
-			        	
-			        	// Extract data from result set
-			        	while (rs.next()) {	
-			        		
-			        	    rowIndex++;
-			        	    
-			        	    // Collect row data as objects in a List
-			        	    List<Object> rowData = new ArrayList<>();
-			        	    for (int i = 1; i <= rsmd.getColumnCount(); i++) {
-			        	        rowData.add(rs.getObject(i));
-			        	    }
-			     
-			        	    sb.append("{");
-			        	    String dataSeparator = "";
-			        	    
-			        	    for (int colIndex = 0; colIndex < rsmd.getColumnCount(); colIndex++) {
-			        	        String objType = "null";
-			        	        String objString = "";
-			        	        Object columnObject = rowData.get(colIndex);
-			        	        
-			    				sb.append(dataSeparator);
-			        	        
-			        	        if (columnObject != null) {
-			        	            objString = columnObject.toString() + " ";
-			        	            objType = columnObject.getClass().getName();
-			        	        }
-			        	       
-			        	        sb.append("\"" + columnNames.get(colIndex).toLowerCase() + "\"" + ":" );
-			        	        if (objType.equals("java.math.BigDecimal")) {
-			        	        	sb.append(objString);
-			        	        } else {
-			        	        	sb.append("\"" + objString + "\"");
-			        	        }
-			        	        dataSeparator = ", ";
-			        	   
-			        	    }
-			        	    sb.append("},");
-			        	}
-			        	
-			        	sb.append("]");
-			        	
-			        	log.info("Cantidad de Filas: " + rowIndex + "%n");
-			        	log.info(sb.toString());
-
-						return ResponseEntity.status(HttpStatus.OK).body(sb.toString());
+						return ResponseEntity.status(HttpStatus.OK).body(getJSON(rs));
 
 					} catch (SQLException e) {
 						e.printStackTrace();
@@ -126,6 +73,64 @@ public class ConnectorController {
 
 		return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Connection not found!!!");
 
+	}
+	
+	public String getJSON(ResultSet rs) throws SQLException {
+		
+		// Collect column names
+    	List<String> columnNames = new ArrayList<>();
+    	ResultSetMetaData rsmd = rs.getMetaData();
+    	for (int i = 1; i <= rsmd.getColumnCount(); i++) {
+    	    columnNames.add(rsmd.getColumnLabel(i));
+    	}
+    	
+    	StringBuilder sb = new StringBuilder("[");
+    	int rowIndex = 0;
+    	
+    	// Extract data from result set
+    	while (rs.next()) {	
+    		
+    	    rowIndex++;
+    	    
+    	    // Collect row data as objects in a List
+    	    List<Object> rowData = new ArrayList<>();
+    	    for (int i = 1; i <= rsmd.getColumnCount(); i++) {
+    	        rowData.add(rs.getObject(i));
+    	    }
+ 
+    	    sb.append("{");
+    	    String dataSeparator = "";
+    	    
+    	    for (int colIndex = 0; colIndex < rsmd.getColumnCount(); colIndex++) {
+    	        String objType = "null";
+    	        String objString = "";
+    	        Object columnObject = rowData.get(colIndex);
+    	        
+				sb.append(dataSeparator);
+    	        
+    	        if (columnObject != null) {
+    	            objString = columnObject.toString() + " ";
+    	            objType = columnObject.getClass().getName();
+    	        }
+    	       
+    	        sb.append("\"" + columnNames.get(colIndex).toLowerCase() + "\"" + ":" );
+    	        if (objType.equals("java.math.BigDecimal")) {
+    	        	sb.append(objString);
+    	        } else {
+    	        	sb.append("\"" + objString + "\"");
+    	        }
+    	        dataSeparator = ", ";
+    	   
+    	    }
+    	    sb.append("},");
+    	}
+    	
+    	sb.append("]");
+    	
+    	log.info("Cantidad de Filas: " + rowIndex + "%n");
+    	log.info(sb.toString());
+    	
+    	return sb.toString();
 	}
 
 }
