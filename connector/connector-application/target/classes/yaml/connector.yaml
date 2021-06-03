@@ -2,7 +2,7 @@ connectorDetails:
   - type: "firstDataSource" 
     queryDetails: 
       - name: "USER"
-        query: "SELECT * FROM USER"
+        query: "SELECT * FROM USERS"
       - name: "CLIENT_BANKS"
         query: "SELECT * FROM CLIENT_BANKS"
   - type: "secondDataSource" 
