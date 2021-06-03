@@ -28,7 +28,7 @@ public class DatabaseConfiguration {
     @Bean(name = "secondDataSource")
     @ConfigurationProperties("second.datasource")
     public HikariDataSource secondDataSource() {
-        return (HikariDataSource) DataSourceBuilder.create().driverClassName("com.microsoft.sqlserver.jdbc.SQLServerDriver").build();
+        return DataSourceBuilder.create().type(HikariDataSource.class).build();
     }
 
     @Bean(name="firstTransactionManager")
