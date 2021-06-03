@@ -1,0 +1,14 @@
+connectorDetails:
+  - type: "firstDataSource" 
+    queryDetails: 
+      - name: "USER"
+        query: "SELECT * FROM USER"
+      - name: "CLIENT_BANKS"
+        query: "SELECT * FROM CLIENT_BANKS"
+  - type: "secondDataSource" 
+    queryDetails: 
+      - name: "USER"
+        query: "SELECT * FROM USERS"
+      
+      
+    
