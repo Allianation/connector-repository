@@ -16,7 +16,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
-import java.io.InputStream;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -50,103 +49,88 @@ public class ConnectorController {
 		Connector connector = yaml.load(inputStream);
 
 		if (request.getDataSource().equals("firstDataSource")) {
-
-			for (QueryDetails qd : connector.getConnectorDetails().get(0).getQueryDetails()) {
-
-				if (qd.getName().equals(request.getQueryName())) {
-					
-					var sql = qd.getQuery();
-					
-					try (var con = firstDataSource.getConnection(); PreparedStatement ps = con.prepareStatement(sql); ResultSet rs = ps.executeQuery();) {
-
-						return ResponseEntity.status(HttpStatus.OK).body(getJSON(rs));
-
-					} catch (SQLException e) {
-						e.printStackTrace();
-					}
-				}
+			var sql = getQuery(connector.getConnectorDetails().get(0).getQueryDetails(), request.getQueryName());
+			try (var con = firstDataSource.getConnection(); PreparedStatement ps = con.prepareStatement(sql); ResultSet rs = ps.executeQuery();) {
+				return ResponseEntity.status(HttpStatus.OK).body(getJSON(rs));
+			} catch (SQLException e) {
+				e.printStackTrace();
 			}
-
 		} else if (request.getDataSource().equals("secondDataSource")) {
-			
-			for (QueryDetails qd : connector.getConnectorDetails().get(1).getQueryDetails()) {
+			var sql = getQuery(connector.getConnectorDetails().get(1).getQueryDetails(), request.getQueryName());
+			try (var con = secondDataSource.getConnection(); PreparedStatement ps = con.prepareStatement(sql); ResultSet rs = ps.executeQuery();) {
+				return ResponseEntity.status(HttpStatus.OK).body(getJSON(rs));
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Connection not found!!!");
+	}
 
-				if (qd.getName().equals(request.getQueryName())) {
-					
-					var sql = qd.getQuery();
-					
-					try (var con = secondDataSource.getConnection(); PreparedStatement ps = con.prepareStatement(sql); ResultSet rs = ps.executeQuery();) {
+	public String getQuery(List<QueryDetails> queryDetails, String queryName) {
+		for (QueryDetails qd : queryDetails) {
+			if (qd.getName().equals(queryName)) {
+				return qd.getQuery();
+			}
+		}
+		return null;
+	}
 
-						return ResponseEntity.status(HttpStatus.OK).body(getJSON(rs));
+	public String getJSON(ResultSet rs) throws SQLException {
 
-					} catch (SQLException e) {
-						e.printStackTrace();
-					}
-				}
+		// Collect column names
+		List<String> columnNames = new ArrayList<>();
+		ResultSetMetaData rsmd = rs.getMetaData();
+		for (var i = 1; i <= rsmd.getColumnCount(); i++) {
+			columnNames.add(rsmd.getColumnLabel(i));
+		}
+
+		var sb = new StringBuilder("[");
+		var rowIndex = 0;
+
+		// Extract data from result set
+		while (rs.next()) {
+
+			rowIndex++;
+
+			// Collect row data as objects in a List
+			List<Object> rowData = new ArrayList<>();
+			for (var i = 1; i <= rsmd.getColumnCount(); i++) {
+				rowData.add(rs.getObject(i));
 			}
 
-		} 
+			sb.append("{");
+			var dataSeparator = "";
 
-		return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Connection not found!!!");
+			for (var colIndex = 0; colIndex < rsmd.getColumnCount(); colIndex++) {
+				var objType = "null";
+				var objString = "";
+				var columnObject = rowData.get(colIndex);
 
-	}
-	
-	public String getJSON(ResultSet rs) throws SQLException {
-		
-		// Collect column names
-    	List<String> columnNames = new ArrayList<>();
-    	ResultSetMetaData rsmd = rs.getMetaData();
-    	for (int i = 1; i <= rsmd.getColumnCount(); i++) {
-    	    columnNames.add(rsmd.getColumnLabel(i));
-    	}
-    	
-    	StringBuilder sb = new StringBuilder("[");
-    	int rowIndex = 0;
-    	
-    	// Extract data from result set
-    	while (rs.next()) {	
-    		
-    	    rowIndex++;
-    	    
-    	    // Collect row data as objects in a List
-    	    List<Object> rowData = new ArrayList<>();
-    	    for (int i = 1; i <= rsmd.getColumnCount(); i++) {
-    	        rowData.add(rs.getObject(i));
-    	    }
- 
-    	    sb.append("{");
-    	    String dataSeparator = "";
-    	    
-    	    for (int colIndex = 0; colIndex < rsmd.getColumnCount(); colIndex++) {
-    	        String objType = "null";
-    	        String objString = "";
-    	        Object columnObject = rowData.get(colIndex);
-    	        
 				sb.append(dataSeparator);
-    	        
-    	        if (columnObject != null) {
-    	            objString = columnObject.toString() + " ";
-    	            objType = columnObject.getClass().getName();
-    	        }
-    	       
-    	        sb.append("\"" + columnNames.get(colIndex).toLowerCase() + "\"" + ":" );
-    	        if (objType.equals("java.math.BigDecimal")) {
-    	        	sb.append(objString);
-    	        } else {
-    	        	sb.append("\"" + objString + "\"");
-    	        }
-    	        dataSeparator = ", ";
-    	   
-    	    }
-    	    sb.append("},");
-    	}
-    	
-    	sb.append("]");
-    	
-    	log.info("Cantidad de Filas: " + rowIndex);
-    	log.info(sb.toString());
-    	
-    	return sb.toString();
+
+				if (columnObject != null) {
+					objString = columnObject.toString() + " ";
+					objType = columnObject.getClass().getName();
+				}
+
+				sb.append("\"" + columnNames.get(colIndex).toLowerCase() + "\"" + ":");
+				if (objType.equals("java.math.BigDecimal")) {
+					sb.append(objString);
+				} else {
+					sb.append("\"" + objString + "\"");
+				}
+				dataSeparator = ", ";
+
+			}
+			sb.append("},");
+		}
+
+		sb.append("]");
+
+		log.info("Cantidad de Filas: " + rowIndex);
+		log.info(sb.toString());
+
+		return sb.toString();
 	}
 
 }
