@@ -67,6 +67,7 @@ public class ConnectorController {
 	}
 
 	public String getQuery(List<QueryDetails> queryDetails, String queryName) {
+		
 		for (QueryDetails qd : queryDetails) {
 			if (qd.getName().equals(queryName)) {
 				return qd.getQuery();
