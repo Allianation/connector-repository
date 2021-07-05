@@ -1,2 +1,2 @@
 # connector-repository
-Spring boot multi module project for database connections
+Multi module project for database connections
